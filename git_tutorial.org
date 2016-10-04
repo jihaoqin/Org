@@ -8,4 +8,4 @@
    
    git status 能告诉我们哪个文件改变了，哪个文件没有被添加到仓库
 
-   git diff filename 能告诉我们
+   git diff filename 能告诉我们仓库中的文件和工作区的文件的差别.
