@@ -1,2 +1,11 @@
 * git
   git用起来真好玩儿啊，可以在linux和Windows下进行操作。
+* 创建版本库
+  新建一个文件夹，进入文件夹， git init 就ok了，之后会多一个.git的目录
+** 添加文件到暂存区
+   git add filename。只能跟踪文本文件的改动，二进制文件跟踪不了，word就是二进制文件。
+   git commit -m "comment" 把暂存区的文件同步到仓库中
+   
+   git status 能告诉我们哪个文件改变了，哪个文件没有被添加到仓库
+
+   git diff filename 能告诉我们
