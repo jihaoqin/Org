@@ -8,4 +8,15 @@
    
    git status 能告诉我们哪个文件改变了，哪个文件没有被添加到仓库
 
-   git diff filename 能告诉我们仓库中的文件和工作区的文件的差别.
+   git diff filename 能告诉我们<暂存区,仓库>中的文件和工作区的文件的差别！
+   git diff HEAD -- filename 可以查看工作区和仓库中的文件差别。
+
+   git log 能告诉我们每次commit的一些信息，即所谓 提交日志
+
+   git reset --hard {HEAD,HEAD^,HEAD^^,HEAD~100,commit id}，reset能重置很多东西，这里是把仓库的版本回退到原来的状态
+   git reset HEAD filename 用仓库中的版本覆盖暂存区中的改动
+   
+
+   git reflog 能看到HEAD数组的状态，貌似每次对仓库的更改都会在HEAD数组添加相应的一个元素。对HEAD数组的读取就能改到之前任何一个状态。
+
+   git checkout -- filename 将<暂存区，仓库>中的文件覆盖工作区的。
