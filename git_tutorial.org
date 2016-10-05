@@ -26,5 +26,17 @@
   git branch ubun 创建ubun分支
   git branch      查看当前分支
 
-  git checkout ubun 切换到ubun分支
+  git checkout ubun 切换到ubun分支master是一个指针,HEAD也是一个指针,每个分支都有一个指针,指针指向一个数组.HEAD指向的数组就是当前工作分支.
+
+  git branch ubun 创建ubun分支
+  git branch      查看分支
+  git branch -d ubun 删除分支
   
+  git checkout ubun 切换到ubun分支
+
+  git merge ubun _master分支直接跳到ubun,合并分支_
+
+  冲突的解决方式,就是进入文件中把 <<< === >>>部分改掉再commit,两个分支就合并成一个新的状态了
+
+  想象一下你正在dev分支开发新功能,这个时候master分支出现了bug,你需要去修改bug那怎么办呢?
+  可以转到master分支,开一个bug分支,fix后再commit,然后push上去.这就出现了问题,你dev分支的代码怎么办?之前你可能是先在dev上commit再转到master分支上的,此时dev还没完成.之后你就push上去了,这是不对的.所以,你可以用stash一下,之后再来恢复现场.
