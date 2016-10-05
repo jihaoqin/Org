@@ -20,3 +20,11 @@
    git reflog 能看到HEAD数组的状态，貌似每次对仓库的更改都会在HEAD数组添加相应的一个元素。对HEAD数组的读取就能改到之前任何一个状态。
 
    git checkout -- filename 将<暂存区，仓库>中的文件覆盖工作区的。
+* 分支管理
+  master是一个指针,HEAD也是一个指针,每个分支都有一个指针,指针指向一个数组.HEAD指向的数组就是当前工作分支.
+
+  git branch ubun 创建ubun分支
+  git branch      查看当前分支
+
+  git checkout ubun 切换到ubun分支
+  
