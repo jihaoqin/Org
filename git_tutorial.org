@@ -20,5 +20,36 @@
    git reflog 能看到HEAD数组的状态，貌似每次对仓库的更改都会在HEAD数组添加相应的一个元素。对HEAD数组的读取就能改到之前任何一个状态。
 
    git checkout -- filename 将<暂存区，仓库>中的文件覆盖工作区的。
-* 远程仓库
+* 分支管理
+  master是一个指针,HEAD也是一个指针,每个分支都有一个指针,指针指向一个数组.HEAD指向的数组就是当前工作分支.
+
+  git branch ubun 创建ubun分支
+  git branch      查看当前分支
+
+  git checkout ubun 切换到ubun分支master是一个指针,HEAD也是一个指针,每个分支都有一个指针,指针指向一个数组.HEAD指向的数组就是当前工作分支.
+
+  git branch ubun 创建ubun分支
+  git branch      查看分支
+  git branch -d ubun 删除分支
   
+  git checkout ubun 切换到ubun分支
+
+  git merge ubun _master分支直接跳到ubun,合并分支_
+
+  冲突的解决方式,就是进入文件中把 <<< === >>>部分改掉再commit,两个分支就合并成一个新的状态了
+
+  想象一下你正在dev分支开发新功能,这个时候master分支出现了bug,你需要去修改bug那怎么办呢?
+  可以转到master分支,开一个bug分支,fix后再commit,然后push上去.这就出现了问题,你dev分支的代码怎么办?之前你可能是先在dev上commit再转到master分支上的,此时dev还没完成.之后你就push上去了,这是不对的.所以,你可以用stash一下,之后再来恢复现场.
+
+  git stash 冷藏当前分支,清空暂存区
+  git stash pop 弹出之前冷藏的分支
+  git stash list 查看冷藏区的情况
+* 推送分支
+  git push origin master 把master分支推送给远程库,也可以推送别的分支.
+
+  小伙伴们从远程库中clone下来的仓库,是看不到除了master之外的分支的(eg.dev分支).所以小伙伴需要在本地创建一个dev分支,
+  git checkout -b dev origin/dev
+  =? git branch dev origin/dev
+     git checkout dev
+  之后,小伙伴可以把他的版本push上去,你也可以push.如果你的版本没有远程库中的新,会提示push不上去,这时候需要把远程库中的pull下来,在本地解决好冲突后再push上去.   
+  git pull 貌似是把远程库的东东拉下来,但是可能会提示dev没有tracking information.因为没有指定dev分支与远程库的origin/dev的链接.git branch --set-upstream dev origin/dev,这样就设置了本地库dev和origin/dev的track了.再git pull,之后commit,有冲突,解决冲突,commit,push.
