@@ -14,11 +14,13 @@
 
    git diff filename 能告诉我们<暂存区,仓库>中的文件和工作区的文件的差别！
    git diff HEAD -- filename 可以查看工作区和仓库中的文件差别。
+   git diff --staged    查看staged和仓库中的差别
 
    git log 能告诉我们每次commit的一些信息，即所谓 提交日志
 
    git reset --hard {HEAD,HEAD^,HEAD^^,HEAD~100,commit id}，reset能重置很多东西，这里是把仓库的版本回退到原来的状态
    git reset HEAD filename 用仓库中的版本覆盖暂存区中的改动
+   如何用暂存区中的文件覆盖working中的文件?
    
 
    git reflog 能看到HEAD数组的状态，貌似每次对仓库的更改都会在HEAD数组添加相应的一个元素。对HEAD数组的读取就能改到之前任何一个状态。
@@ -48,6 +50,9 @@
   git stash 冷藏当前分支,清空暂存区
   git stash pop 弹出之前冷藏的分支
   git stash list 查看冷藏区的情况
+
+  git pull 和 git fetch [remote-name]的区别? 前者会自动merge,后者需要手动merge
+  git clone [https://] 除了拷贝仓库下来,还是自动track远程主机的主分支
 * 推送分支
   git push origin master 把master分支推送给远程库,也可以推送别的分支.
 
@@ -57,3 +62,36 @@
      git checkout dev
   之后,小伙伴可以把他的版本push上去,你也可以push.如果你的版本没有远程库中的新,会提示push不上去,这时候需要把远程库中的pull下来,在本地解决好冲突后再push上去.   
   git pull 貌似是把远程库的东东拉下来,但是可能会提示dev没有tracking information.因为没有指定dev分支与远程库的origin/dev的链接.git branch --set-upstream dev origin/dev,这样就设置了本地库dev和origin/dev的track了.再git pull,之后commit,有冲突,解决冲突,commit,push.
+
+  
+* 问题
+  tag到底是打在谁身上的,commit,branch?
+
+  如何进行push到remote?
+  git push origin [branchname]
+  push也能进行branch层面的操作,如果你的push和remote的有冲突,需要现在本地解决冲突再push上去,那么什么是有冲突呢?
+
+  push上去的东西在remote如何进行merge?
+  实际上push上去的东西,在remote就直接进行fastforward合并了.
+
+  clone,fetch,pull最小操作单元是什么,branch,整个仓库?
+  fetch可以操作origin,git fetch origin
+
+  git pull, git push 缺省参数都是啥?
+
+  什么是建立了track
+
+  如何把两个分支merge起来? 本地分支merge, 远程分支merge, 本地和远程分支merge,是谁跳到谁那里?
+  答案是,merge base就是当前的branch
+
+  在不同的分支add东西,一起commit之后会怎么样?
+  答案是:会把add的东西都commit到当前分支.
+
+  在不同分支之间跳转的时候,working directory里的文件是跟着branch走吗?
+  是的,checkout做的事情有两个. 1.HEAD指针跳转 2.转换工作区文件为branch指向所的commit的快照
+  可是如果当前working directory中的工作还未commit,这样会不会丢失呢?git会组织你checkout吗?答案就是git会拒绝checkout的
+  
+  
+  我能查看不同branch之间文件的diff吗
+
+  
