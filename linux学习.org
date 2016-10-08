@@ -1,0 +1,138 @@
+* 磁盘分区
+  首先需要了解一下硬盘的结构,硬盘上有磁区和磁轨的概念,按之不表.
+  系统启动需要先扫描第一个磁区的东西.
+*** MBR
+    我们通常说的MBR,包括 MBR 和 partion table
+  第一个磁区记录了重要的信息有两个:
+  + MBR :: master boot recorder可以安装启动管理程序的地方
+  + partition talb(分割表) :: 记录硬盘的分割,有64bit
+  由于分割表64bit的限制,导致了
+  一块儿大磁盘可以被分为四个槽,在windows下面就是对应的CDEF盘,而在linux
+  下所有的设备都是文件,/dev/hda1,/dev/hda2,/dev/hda3,/dev/hda4,为了解决这
+  种问题,就出现了所谓的extension(扩展分区),扩展分区的目的是为了使用额
+  外的分区来记录分割信息,本身并不能能用来格式化(其实并不明白什么意思),
+  扩展分区可以继续分割,分割出logical partion(逻辑分割)总结如下:
+  - primary pation1 :: /dev/hda1
+  - primary pation2 :: /dev/hda2
+  - extension 
+    - logical partion1 :: /dev/hda5
+    - logical partion2 :: /dev/hda6
+  注释:hda3,hda4是为parimary partion保留的.
+*** GUID partion table, GPT
+    历史总是在发展的...由于MBR那可怜的内存限制,在硬盘空间快速增长的限
+    制下显得捉襟见肘.比如你有一块儿70TB的硬盘raid,那在MBR下的分发就是
+    2TB,2TB的分割了...
+    使用了GPT的分割方式极大地扩展了可分割的限制...
+    为了相容于所有的硬盘,使用抽象这一工具!使用所谓的LBA(逻辑块地址)来
+    处理寻址问题.
+    GPT使用了34个LBA来记录分割咨询,同时与MBR只有一个区块不同,磁盘的最
+    后33LBA也拿来用做前面LBA的备份了-_-!其图示Scheme如下:
+    - LBA0 :: MBR相似区块,这块而也有MBR中管理开机启动啥玩意儿的
+              446bytes区域,而剩下的64bytes不是像MBR中的那样用作记录分
+              割信息了,而是用作一个特殊标志,用来告诉someone:此分割方式
+              是GPT方式,你不要弄错了!
+    - LBA1 :: 它主要记录了分割表的一些信息,同时也记录了备份的分割表的
+              信息,比如说备份的位置在哪里之类的.
+    - LBA2-33 :: 从此开始,每个LBA都是可以记录四个分割,他们总共在一起可
+                 以记录2^30 TB这么多的容量.其实我并不知道是怎么计算的...
+    - Partion 1... :: 很多partion
+    - LBA-33...-1 :: 备份的LBA
+    注释:现在已经没有所谓的primary,extension,logical分割的概念了,每个
+    分割都是primary,所以说,可以随意格式化了,从而不影响到别的分割.
+* 开机过程中的BIOS与UEFI开机检测程序
+  文件管理系统呢对于操作系统的意义在于资源的合理分配,而文件管理系统也
+  是相当与一个层次比较高的东西,难道说硬件方面直接就运行它了吗,显然不是
+  的.
+  基本上目前的主机系统在载入硬件驱动方面的程序主要有BIOS和UEFI两类.
+** BIOS搭配MBR/GPT的开机流程
+   BIOS实际上就是存在板子上的一个程序,注意是板子哦,不是硬盘.而CMOS则是
+   类似与板子上的硬盘,用来存储各个硬件参数的东东.
+   BIOS就是电脑在启动的时候运行的第一个程序.
+   BIOS接下来呢就是分析计算机内有哪些存储设备,找到硬盘后去读第一个磁区
+   的MBR,MBR的这个仅有466bytes容量里面会放一些最基本的启动管理程序.此
+   时BIOS就功德圆满了,接下来就是MBR内的启动管理程序的工作了.
+   这个启动管理程序的目的是加载核心文件(load kernal),由于启动管理程序
+   就是在安装系统时,系统给的,所以启动管理程序会认识所有的文件格式,自然
+   能够认识kernal,读取完kernal后,就是kernal的工作了.
+   总结下来,整个启动流程是这样的:
+   + BIOS
+   + MBR :: 内含boot loader
+   + boot loader :: 启动管理程序
+     - 提供菜单 :: 使用者可以选择不同的启动项目,这也是多重启动的重要功
+                   能,就像windows下的安全模式之类的吧...
+     - 加载核心文件 :: 直接指向可启动的程序区段启动OS
+     - 转交其它loader :: 将启动管理功能转交给其他loader负责.比如说究竟
+                         是用linux启动还是转交给windows去启动
+   + kernal :: 核心,开始操作系统的功能
+   注释:如果对于双系统,它需要两个启动管理程序(boot loader),但是对于硬
+   盘,只能有一个MBR.怎么办?
+   这就用到了boot sector,启动管理程序可以放在MBR中,也可以
+   放在boot sector中,每个分割槽都有boot sector.
+** directory tree(目录树结构)
+   linux内的所有数据都是用文件的形式存在的.那些硬件也是.
+   所以linux系统中比较重要的就是directory tree.目录树架构中最重要的就
+   是根目录,就是/.
+   下面来看看,目录树的组成吧.
+   - /
+     - etc
+     - bin
+     - usr
+     - home
+       - dmtsai
+	 - .bashrc
+	 - .profile
+	 - mydata
+	 - Destktop
+	 - ...
+       - arod
+       - damon
+       - wong
+     - ...
+   so here come the question, how to link the directory tree and
+   data in disk?
+   The answer is mount(挂载).
+   这里我们说话用的句式是 把...挂载到目录树上,就像把东西挂到树上一样.
+   比如说把primary partion1挂在到/目录上,partion2挂载到/usr上,等等
+* Linux的文件权限与目录配置
+  解决的问题:
+  1. terminal的用法
+     [account@ComputerName ~]{#,$}
+     - account是账户名字,比如Geeho之类的,linux是一个单机多人用的东西,所
+       以账户可能比较多,root是一个比较特殊的账户,具有最高权限.
+     - ComputerName :: 你自己取的名字
+     - ~ :: 代表着家目录,比如对于我的geeho账户,就是/home/geeho
+     - {#,$} :: #代表着root,$代表着普通账户
+  2. man,info,shuttdown...
+     - <TAB>用法,可以用来提示补全命令,也可以用来提示目录下有哪些文件
+     - <CTRL>+<D> 代表End of File,用来结束terminal
+     - <CTRL>+<C> 代表结束进程之类的
+     - man命令可以用来查找帮助 man man
+       - 经常会看到man某个command后出现filename([d])这个意思是
+	 (1)为一般用户即可使用,(5)为某些档案的格式,(8)为系统管理员可用
+         的指令
+     - info命令可能更加详细 info info
+** 用户和权限的概念
+   用户包括{owner,group,others},权限包括{read,write,execute}
+   在terminal下可用 ls -l dir/file 查询权限其为十字元,
+   [d][rwx][r--][r--]
+   - [d] :: 表示它的属性,如果是目录则为d,正规文档(regular file)则为-,
+            链接文档为l,接口文档(sockets)为s,资料输送文档(FIFO,pipe)为
+            p
+   - [rwx] :: 代表owner的权限
+   - [r--] :: 代表group的权限
+   - [r--] :: 代表others的权限
+   - 注意 :: root用户具有所有的权限
+*** 对文档进行设置的方法
+    可用chmod,chown,chgrp进行权限,owner:group,group的设置
+    - 注意 :: 对于目录和常规文档权限的意义不同.
+	      对于常规文档来说,r代表可读取内容,w代表可对内容进行修改,x代表可以执行它.
+	      对于目录来说,它的内容则是记忆了下面有哪些文档名之类的,所
+              以r是可以获取下面的文档名,w是可以删除,添加文档名之类的,x
+              是可以access的.
+*** 目录设置
+    由于linux是基于directory tree这种方式的,所以目录有个标准,以免太乱.
+    标准就是FHS(filesystem hierarchy system),给除了应该必须包含哪些目
+    录,对应的目录应该保存什么文档.
+    FHS定义了四类特性,shareable,unshareable,static,variable
+    也定义了三层主目录:/,/usr,/var.
+    <2016-02-20 六>
