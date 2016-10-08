@@ -1,5 +1,9 @@
 * git
   git用起来真好玩儿啊，可以在linux和Windows下进行操作。
+
+  git config --global core.editor emacs 设置默认的编辑器
+
+  git config --list 查看设置
 * 创建版本库
   新建一个文件夹，进入文件夹， git init 就ok了，之后会多一个.git的目录
 ** 添加文件到暂存区
